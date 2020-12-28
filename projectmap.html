@@ -1,0 +1,56 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./skeleton.css" />
+    <title>Project Map</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>project map</h1>
+        <div class="row" id="selectnone">
+            <div class="ten columns">
+                <div id="tracker"></div>
+            </div>
+            <div class="two columns">
+                <button id="add">Add</button>
+                <button>Import</button>
+                <button id="save">Save</button>
+            </div>
+        </div>
+        <form>
+            <div class="row">
+                <div class="one-third columns">
+                    <label>Name</label>
+                    <input id="nameEditor" type="text" class="u-full-width"></input>
+                </div>
+                <div class="one-third columns">
+                    <label>Status</label>
+                    <select id="statusEditor" class="u-full-width">
+                        <option value="todo">To do</option>
+                        <option value="active">In progress</option>
+                        <option value="paused">Paused</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="one-third columns">
+                    <label>Parent</label>
+                    <input id="parentEditor" list="parents" type="text" class="u-full-width">
+                    <datalist id="parents"></datalist>
+                </div>
+            </div>
+            <div class="row">
+                <div class="twelve columns">
+                    <label>Details</label>
+                    <textarea id="detailEditor" class="u-full-width"></textarea>
+                </div>
+            </div>
+    </div>
+    </form>
+    </div>
+    <script src="./projectmap.js"></script>
+</body>
+
+</html>
