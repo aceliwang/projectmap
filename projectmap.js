@@ -2,6 +2,8 @@ let data
 let tracker = document.getElementById('tracker')
 let addBtn = document.getElementById('add')
 let saveBtn = document.getElementById('save')
+let delBtn = document.getElementById('delete')
+let importBtn = document.getElementById('import')
 let parentDatalist = document.getElementById('parents')
 document.selected = []
 
@@ -47,35 +49,33 @@ var print = function (feature, parentNode, level) {
     issueNode.style.paddingLeft = (level - 1) * 3 + '%'
     issueNode.onclick = (evt) => {
         evt.stopPropagation()
-        if (document.selected.includes(issueNode)) { // unclick
-            document.selected = document.selected.filter(item => item != issueNode)
-            console.log('clicked', document.selected)
-            issueNode.style.fontWeight = 'normal'
-            select(true)
-        } else if (evt.ctrlKey && document.selected.includes(issueNode)) { // ctrl + unclick
+        // if (document.selected.includes(issueNode)) { // unclick
+        // document.selected = document.selected.filter(item => item != issueNode)
+        // console.log('clicked', document.selected)
+        // issueNode.style.fontWeight = 'normal'
+        // select(true)
+        // } else 
+        if (evt.ctrlKey && document.selected.includes(issueNode)) { // ctrl + unclick
         } else if (evt.ctrlKey) { // ctrl + click
             document.selected.push(issueNode)
             issueNode.style.fontWeight = 'bold'
         } else { // click
-            console.log('click feature')
+            // console.log('click feature')
             document.selected.forEach(issue =>
                 issue.style.fontWeight = 'normal'
             )
             document.selected = [issueNode]
             select()
         }
-
-        console.log(document.selected)
+        console.log(document.selected.map(feature => feature.name))
     }
     printStatusColor(issueNode, status)
     if (level === 1) {
         parentNode.append(issueNode)
     } else {
-        console.log(parentNode.name)
         parentNode.insertAdjacentElement('afterend', issueNode)
     }
     children.forEach(child => {
-        console.log(child)
         print(child, issueNode, level + 1)
     })
     return issueNode
@@ -99,7 +99,6 @@ var add = function () {
 }
 
 var select = function (empty) {
-    console.log(document.selected)
     while (parentDatalist.firstChild) {
         parentDatalist.removeChild(parentDatalist.firstChild)
     }
@@ -185,29 +184,14 @@ parentEditor.onchange = function () {
     }
 }
 
-fetch('./projectmap.json')
-    .then(response => response.json())
-    .then(json => {
-        data = json
-        data.features.forEach(feature => {
-            print(feature, tracker, 1)
-        })
-        console.log(typeof tracker.childNodes)
-    })
-
 var save = function () {
-    console.log(tracker.childNodes[0])
     let queue = []
     let json = { features: [] }
     tracker.childNodes.forEach(node => {
-        // console.log(node.name, node.status, node.details, node.level, node.parent)
-        // console.log('queue', queue)
-        console.log(node.level)
         if (node.level < queue.length) { // if level has dropped
             let difference = queue.length - node.level
             for (let i = 0; i < difference; i++) {
                 let collapse = queue.pop()
-                // console.log("collapse", collapse)
                 queue.slice(-1)[0].slice(-1)[0].children.push(...collapse)
             }
             queue.slice(-1)[0].push({
@@ -241,11 +225,12 @@ var save = function () {
         json.features.push(...feature)
     })
     json = JSON.stringify(json)
-    console.log(json)
+    // console.log(json)
+    document.cookie = "save=" + json
+    localStorage.setItem('save', json)
 }
 
 document.getElementById('selectnone').onclick = (evt) => {
-    console.log('selectnone')
     evt.stopPropagation()
     document.selected.forEach(feature => {
         feature.style.fontWeight = 'normal'
@@ -264,10 +249,60 @@ saveBtn.onclick = (evt) => {
     save()
 }
 
+delBtn.onclick = (evt) => {
+    evt.stopPropagation()
+    document.selected.forEach(feature => {
+        while (feature.nextSibling && feature.nextSibling.level > feature.level) {
+            let adjacent = feature.nextSibling
+            adjacent.level = adjacent.level - 1
+            adjacent.style.paddingLeft = (adjacent.level - 1) * 3 + '%'
+            adjacent.insertAdjacentElement('afterend', feature)
+        }
+        tracker.removeChild(feature)
+    })
+    select(true)
+}
+
+importBtn.onclick = (evt) => {
+    while (tracker.firstChild) {
+        tracker.removeChild(tracker.firstChild)
+    }
+}
+
 select(true)
 
 debugLevels = () => {
     tracker.childNodes.forEach(feature => {
         console.log(feature.level)
     })
+}
+
+if (localStorage.getItem('save')) {
+    data = JSON.parse(localStorage.getItem('save'))
+    data.features.forEach(feature => {
+        print(feature, tracker, 1)
+    })
+} else if (document.cookie) {
+    let cookies = document.cookie.split(';')
+    let saveData
+    for (let i = 0; i < cookies.length; i++) {
+        if (cookies[i].includes('save')) {
+            saveData = cookies[i].split('=')[1]
+            break
+        }
+    }
+    data = JSON.parse(saveData)
+    console.log(data)
+    data.features.forEach(feature => {
+        print(feature, tracker, 1)
+    })
+} else {
+    fetch('./projectmap.json')
+        .then(response => response.json())
+        .then(json => {
+            data = json
+            data.features.forEach(feature => {
+                print(feature, tracker, 1)
+            })
+        })
 }
