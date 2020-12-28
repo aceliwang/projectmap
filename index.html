@@ -15,42 +15,45 @@
                 <div id="tracker"></div>
             </div>
             <div class="two columns" style="text-align:right">
-                <button id="add">Add</button>
-                <button id="delete">Delete</button>
+                <button id="add" class="button-primary">Add</button>
+                <button id="delete" class="button-primary">Delete</button>
                 <button id="import">Import</button>
                 <button id="save">Save</button>
                 <button id="download">Download</button>
             </div>
         </div>
-        <form>
-            <div class="row">
-                <div class="one-third columns">
-                    <label>Name</label>
-                    <input id="nameEditor" type="text" class="u-full-width"></input>
-                </div>
-                <div class="one-third columns">
-                    <label>Status</label>
-                    <select id="statusEditor" class="u-full-width">
-                        <option value="todo">To do</option>
-                        <option value="active">In progress</option>
-                        <option value="paused">Paused</option>
-                        <option value="done">Done</option>
-                    </select>
-                </div>
-                <div class="one-third columns">
-                    <label>Parent</label>
-                    <input id="parentEditor" list="parents" type="text" class="u-full-width">
-                    <datalist id="parents"></datalist>
-                </div>
+        <div class="row">
+            <div class="one-third columns">
+                <label>Name</label>
+                <input id="nameEditor" type="text" class="u-full-width"></input>
             </div>
-            <div class="row">
-                <div class="twelve columns">
-                    <label>Details</label>
-                    <textarea id="detailEditor" class="u-full-width"></textarea>
-                </div>
+            <div class="two columns">
+                <label>Status</label>
+                <select id="statusEditor" class="u-full-width">
+                    <option value="todo">to do</option>
+                    <option value="active">in progress</option>
+                    <option value="paused">paused</option>
+                    <option value="done">done</option>
+                </select>
             </div>
+            <div class="three columns">
+                <label>Parent</label>
+                <input id="parentEditor" list="parents" type="text" class="u-full-width">
+                <datalist id="parents"></datalist>
+            </div>
+            <div class="three columns">
+                <label>Action</label>
+                <button id="moveup">Up</button>
+                <button id="movedown">Down</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="twelve columns">
+                <label>Details</label>
+                <textarea id="detailEditor" class="u-full-width"></textarea>
+            </div>
+        </div>
     </div>
-    </form>
     </div>
     <script src="./projectmap.js"></script>
 </body>

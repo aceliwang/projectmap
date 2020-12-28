@@ -60,6 +60,9 @@ var print = function (feature, parentNode, level) {
         // select(true)
         // } else 
         if (evt.ctrlKey && document.selected.includes(issueNode)) { // ctrl + unclick
+            document.selected = document.selected.filter(feature => feature != issueNode)
+            issueNode.style.fontWeight = 'normal'
+            select()
         } else if (evt.ctrlKey) { // ctrl + click
             document.selected.push(issueNode)
             issueNode.style.fontWeight = 'bold'
@@ -99,7 +102,7 @@ var add = function () {
         "details": "",
         "children": []
     }, parentNode, level)]
-
+    save()
     select()
 }
 
@@ -118,7 +121,7 @@ var select = function (empty) {
         detailEditor.disabled = true
     } else {
         // console.log(document.selected.every(
-            // feature => feature.name === document.selected[0].name))
+        // feature => feature.name === document.selected[0].name))
         nameEditor.value = document.selected.every(feature => feature.name === document.selected[0].name)
             ? document.selected[0].name
             : 'different values'
@@ -159,12 +162,14 @@ nameEditor.onchange = function () {
         node.innerText = this.value
         node.name = this.value
     })
+    save()
 }
 
 detailEditor.onchange = function () {
     document.selected.forEach(node => {
         node.details = this.value
     })
+    save()
 }
 
 statusEditor.onchange = function () {
@@ -172,6 +177,7 @@ statusEditor.onchange = function () {
         printStatusColor(node, this.value)
         node.status = this.value
     })
+    save()
 }
 
 parentEditor.onfocus = function () {
@@ -201,6 +207,7 @@ parentEditor.onchange = function () {
             feature.style.paddingLeft = (parent.level) * 3 + '%'
         })
     }
+    save()
 }
 
 var save = function () {
@@ -249,6 +256,10 @@ var save = function () {
     exportFile = json
 }
 
+checkConsecutive = (array) => {
+    return Math.max(array) - Math.min(array) === array.length - 1
+}
+
 document.getElementById('selectnone').onclick = (evt) => {
     evt.stopPropagation()
     document.selected.forEach(feature => {
@@ -256,6 +267,40 @@ document.getElementById('selectnone').onclick = (evt) => {
     })
     document.selected = []
     select(true)
+}
+
+document.getElementById('moveup').onclick = (evt) => {
+    evt.stopPropagation()
+    // check if consecutive
+    let features = new Array(...tracker.childNodes)
+    let indicies = document.selected.map(feature => features.indexOf(feature))
+    let firstElement = tracker.childNodes[Math.min(indicies)]
+    let lastElement = tracker.childNodes[Math.max(indicies)]
+    if (checkConsecutive(indicies) && firstElement.previousSibling) {
+        console.log('true')
+        lastElement.insertAdjacentElement('afterEnd', firstElement.previousSibling)
+    } else {
+        document.selected.forEach(feature => {
+            if (feature.nextSibling) {
+                feature
+            }
+        })
+    }
+    
+}
+
+document.getElementById('movedown').onclick = (evt) => {
+    evt.stopPropagation()
+    // check if consecutive
+    let features = new Array(...tracker.childNodes)
+    let indicies = document.selected.map(feature => features.indexOf(feature))
+    let lastElement = tracker.childNodes[Math.max(indicies)]
+    if (checkConsecutive(indicies) && lastElement.nextSibling) {
+        console.log('true')
+        let firstElement = tracker.childNodes[Math.min(indicies)]
+        firstElement.insertAdjacentElement('beforeBegin', lastElement.nextSibling)
+    }
+    
 }
 
 addBtn.onclick = (evt) => {
@@ -279,6 +324,7 @@ delBtn.onclick = (evt) => {
         }
         tracker.removeChild(feature)
     })
+    save()
     select(true)
     // https://web.dev/file-system-access/
 }
