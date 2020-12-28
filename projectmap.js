@@ -63,6 +63,7 @@ var print = function (feature, parentNode, level) {
         } else if (evt.ctrlKey) { // ctrl + click
             document.selected.push(issueNode)
             issueNode.style.fontWeight = 'bold'
+            select()
         } else { // click
             // console.log('click feature')
             document.selected.forEach(issue =>
@@ -71,7 +72,7 @@ var print = function (feature, parentNode, level) {
             document.selected = [issueNode]
             select()
         }
-        console.log(document.selected.map(feature => feature.name))
+        // console.log(document.selected.map(feature => feature.name))
     }
     printStatusColor(issueNode, status)
     if (level === 1) {
@@ -116,10 +117,20 @@ var select = function (empty) {
         parentEditor.disabled = true
         detailEditor.disabled = true
     } else {
-        nameEditor.value = document.selected[0].name
-        statusEditor.value = document.selected[0].status
-        detailEditor.value = document.selected[0].details
-        parentEditor.value = document.selected[0].parent
+        // console.log(document.selected.every(
+            // feature => feature.name === document.selected[0].name))
+        nameEditor.value = document.selected.every(feature => feature.name === document.selected[0].name)
+            ? document.selected[0].name
+            : 'different values'
+        statusEditor.value = document.selected.every(feature => feature.status === document.selected[0].status)
+            ? document.selected[0].status
+            : 'different values'
+        detailEditor.value = document.selected.every(feature => feature.details === document.selected[0].details)
+            ? document.selected[0].details
+            : 'different values'
+        parentEditor.value = document.selected.every(feature => feature.parent === document.selected[0].parent)
+            ? document.selected[0].parent
+            : 'different values'
         let top = document.createElement('option')
         top.innerText = 'top'
         parentDatalist.append(top)
@@ -161,6 +172,10 @@ statusEditor.onchange = function () {
         printStatusColor(node, this.value)
         node.status = this.value
     })
+}
+
+parentEditor.onfocus = function () {
+    this.value = ''
 }
 
 parentEditor.onchange = function () {
@@ -307,7 +322,6 @@ var importJSON = (data) => {
 }
 
 if (localStorage.getItem('save')) {
-    console.log(localStorage.getItem('save'))
     data = JSON.parse(localStorage.getItem('save'))
     importJSON(data)
 } else if (document.cookie) {
@@ -320,7 +334,6 @@ if (localStorage.getItem('save')) {
         }
     }
     data = JSON.parse(saveData)
-    console.log(data)
     importJSON(data)
 } else {
     fetch('./projectmap.json')
