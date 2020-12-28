@@ -4,6 +4,7 @@ let addBtn = document.getElementById('add')
 let saveBtn = document.getElementById('save')
 let delBtn = document.getElementById('delete')
 let importBtn = document.getElementById('import')
+let dlBtn = document.getElementById('download')
 let parentDatalist = document.getElementById('parents')
 document.selected = []
 
@@ -12,6 +13,9 @@ let nameEditor = document.getElementById('nameEditor')
 let detailEditor = document.getElementById('detailEditor')
 let statusEditor = document.getElementById('statusEditor')
 let parentEditor = document.getElementById('parentEditor')
+
+// other
+let exportFile
 
 var printStatusColor = function (issueNode, status) {
     switch (status) {
@@ -201,7 +205,6 @@ var save = function () {
                 children: []
             })
         } else if (node.level === queue.length) { // if same level
-            console.log('trigger')
             queue.slice(-1)[0].push({
                 name: node.name,
                 status: node.status,
@@ -228,6 +231,7 @@ var save = function () {
     // console.log(json)
     document.cookie = "save=" + json
     localStorage.setItem('save', json)
+    exportFile = json
 }
 
 document.getElementById('selectnone').onclick = (evt) => {
@@ -261,12 +265,31 @@ delBtn.onclick = (evt) => {
         tracker.removeChild(feature)
     })
     select(true)
+    // https://web.dev/file-system-access/
 }
 
-importBtn.onclick = (evt) => {
+importBtn.onclick = async (evt) => {
+    evt.stopPropagation()
     while (tracker.firstChild) {
         tracker.removeChild(tracker.firstChild)
     }
+    let [fileHandle] = await window.showOpenFilePicker()
+    let file = await fileHandle.getFile()
+    let contents = await file.text()
+    importJSON(JSON.parse(contents))
+}
+
+dlBtn.onclick = (evt) => {
+    evt.stopPropagation()
+    if (!exportFile) {
+        save()
+    }
+    let a = document.createElement('a')
+    let file = new Blob([exportFile], { type: 'text/plain' })
+    a.href = URL.createObjectURL(file)
+    a.download = 'projectmapsavefile.json'
+    a.click()
+    document.removeChild(a)
 }
 
 select(true)
@@ -277,11 +300,16 @@ debugLevels = () => {
     })
 }
 
-if (localStorage.getItem('save')) {
-    data = JSON.parse(localStorage.getItem('save'))
+var importJSON = (data) => {
     data.features.forEach(feature => {
         print(feature, tracker, 1)
     })
+}
+
+if (localStorage.getItem('save')) {
+    console.log(localStorage.getItem('save'))
+    data = JSON.parse(localStorage.getItem('save'))
+    importJSON(data)
 } else if (document.cookie) {
     let cookies = document.cookie.split(';')
     let saveData
@@ -293,16 +321,13 @@ if (localStorage.getItem('save')) {
     }
     data = JSON.parse(saveData)
     console.log(data)
-    data.features.forEach(feature => {
-        print(feature, tracker, 1)
-    })
+    importJSON(data)
 } else {
     fetch('./projectmap.json')
-        .then(response => response.json())
+        .then(response => response.json(),
+            () => alert('No save file found. Import or start fresh.'))
         .then(json => {
             data = json
-            data.features.forEach(feature => {
-                print(feature, tracker, 1)
-            })
+            importJSON(data)
         })
 }
