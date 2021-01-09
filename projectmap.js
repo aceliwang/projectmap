@@ -6,6 +6,8 @@ let delBtn = document.getElementById('delete')
 let importBtn = document.getElementById('import')
 let dlBtn = document.getElementById('download')
 let parentDatalist = document.getElementById('parents')
+let activeList = document.getElementById('active')
+let archiveList = document.getElementById('archive')
 document.selected = []
 
 // editors
@@ -16,6 +18,7 @@ let parentEditor = document.getElementById('parentEditor')
 
 // other
 let exportFile
+let hideActive = hideDone = false
 
 var printStatusColor = function (issueNode, status) {
     switch (status) {
@@ -36,14 +39,18 @@ var printStatusColor = function (issueNode, status) {
     }
 }
 
+var debugStatement = (feature) => {
+    return `${feature.name} | ${feature.status} | ${feature.level} | ${feature.parent}`
+}
+
 var print = function (feature, parentNode, level) {
     let name = feature.name
     let status = feature.status
     let children = feature.children
     let details = feature.details
     let issueNode = document.createElement('div')
+    let clickable = document.createElement('span')
     // issueNode.style.display = 'inline-block'
-    issueNode.innerText = name
     issueNode.name = name
     issueNode.status = status
     issueNode.details = details
@@ -51,7 +58,12 @@ var print = function (feature, parentNode, level) {
     issueNode.level = level
     issueNode.parent = parentNode.name || 'top'
     issueNode.style.paddingLeft = (level - 1) * 3 + '%'
-    issueNode.onclick = (evt) => {
+    issueNode.hideChild = false
+    issueNode.archived = false
+    clickable.innerText = !document.debug ? name : debugStatement(issueNode)
+    issueNode.appendChild(clickable)
+    issueNode.clickable = clickable
+    clickable.onclick = (evt) => {
         evt.stopPropagation()
         // if (document.selected.includes(issueNode)) { // unclick
         // document.selected = document.selected.filter(item => item != issueNode)
@@ -62,20 +74,29 @@ var print = function (feature, parentNode, level) {
         if (evt.ctrlKey && document.selected.includes(issueNode)) { // ctrl + unclick
             document.selected = document.selected.filter(feature => feature != issueNode)
             issueNode.style.fontWeight = 'normal'
-            select()
         } else if (evt.ctrlKey) { // ctrl + click
             document.selected.push(issueNode)
             issueNode.style.fontWeight = 'bold'
-            select()
         } else { // click
             // console.log('click feature')
             document.selected.forEach(issue =>
                 issue.style.fontWeight = 'normal'
             )
             document.selected = [issueNode]
-            select()
         }
+        select()
         // console.log(document.selected.map(feature => feature.name))
+    }
+    clickable.ondblclick = (evt) => {
+        // console.log('old', issueNode.hideChild)
+        evt.stopPropagation()
+        let childrenFound = false
+        findChildren(issueNode).forEach(child => {
+            childrenFound = true
+            child.style.display = issueNode.hideChild ? 'block' : 'none'
+        })
+        issueNode.hideChild = childrenFound ? !issueNode.hideChild : issueNode.hideChild
+        console.log('new', issueNode.hideChild)
     }
     printStatusColor(issueNode, status)
     if (level === 1) {
@@ -155,12 +176,33 @@ var select = function (empty) {
     } else {
         addBtn.disabled = true
     }
+    refreshActives()
+}
+
+var refreshActives = () => {
+    let activeFeatures = new Array(...tracker.childNodes)
+    while (activeList.firstChild) {
+        activeList.removeChild(activeList.firstChild)
+    }
+    let generateActives = () => {
+        activeFeatures = activeFeatures.filter(feature => feature.status == 'active')
+        activeFeatures.forEach(feature => {
+            let item = document.createElement('li')
+            item.innerText = feature.name
+            activeList.append(item)
+        })
+    }
+    !hideActive && generateActives()
 }
 
 nameEditor.onchange = function () {
-    document.selected.forEach(node => {
-        node.innerText = this.value
-        node.name = this.value
+    document.selected.forEach(feature => {
+        feature.name = this.value
+        feature.clickable.innerText = !document.debug ? this.value : debugStatement(feature)
+        findChildren(feature).forEach(child => {
+            child.parent = feature.name
+            document.debug && (child.clickable.innerText = debugStatement(child))
+        })
     })
     save()
 }
@@ -256,8 +298,31 @@ var save = function () {
     exportFile = json
 }
 
-checkConsecutive = (array) => {
+var checkConsecutive = (array) => {
     return Math.max(array) - Math.min(array) === array.length - 1
+}
+
+var findChildren = (feature) => {
+    let children = []
+    let temp = feature
+    while (temp.nextSibling && temp.nextSibling.level > feature.level) {
+        children.push(temp.nextSibling)
+        temp = temp.nextSibling
+    }
+    return children
+}
+
+var findParent = (feature) => {
+    let temp = feature
+    while (temp.previousSibling) {
+        console.log(feature.previousSibling.level, feature.level)
+        if (temp.previousSibling.level >= feature.level) {
+            temp = temp.previousSibling
+        } else {
+            return temp.previousSibling
+        }
+    }
+    return null
 }
 
 document.getElementById('selectnone').onclick = (evt) => {
@@ -277,16 +342,21 @@ document.getElementById('moveup').onclick = (evt) => {
     let firstElement = tracker.childNodes[Math.min(indicies)]
     let lastElement = tracker.childNodes[Math.max(indicies)]
     if (checkConsecutive(indicies) && firstElement.previousSibling) {
-        console.log('true')
         lastElement.insertAdjacentElement('afterEnd', firstElement.previousSibling)
-    } else {
+        firstElement.previousSibling.level = (firstElement.previousSibling.level - lastElement.level > 1)
+            ? lastElement.level + 1
+            : firstElement.previousSibling.level
+        firstElement.level = firstElement.previousSibling.level
+        // TODO: figure out levels
+    } else if (document.selected.map(feature => feature.previousSibling).every(Boolean)) {
         document.selected.forEach(feature => {
-            if (feature.nextSibling) {
-                feature
-            }
+            previousFeature = feature.previousSibling
+            feature.level = next.level
+            previousFeature.insertAdjacentElement('beforeBegin', feature)
+            feature.parent = findParent(feature)
         })
-    }
-    
+    } // must also move all children
+    select()
 }
 
 document.getElementById('movedown').onclick = (evt) => {
@@ -296,11 +366,44 @@ document.getElementById('movedown').onclick = (evt) => {
     let indicies = document.selected.map(feature => features.indexOf(feature))
     let lastElement = tracker.childNodes[Math.max(indicies)]
     if (checkConsecutive(indicies) && lastElement.nextSibling) {
-        console.log('true')
         let firstElement = tracker.childNodes[Math.min(indicies)]
         firstElement.insertAdjacentElement('beforeBegin', lastElement.nextSibling)
     }
-    
+    select()
+}
+
+document.getElementById('movein').onclick = (evt) => {
+    evt.stopPropagation()
+    let features = new Array(...tracker.childNodes)
+    document.selected.sort(function (i, j) { return features.indexOf(i) - features.indexOf(j) }).forEach(feature => {
+        console.log(debugStatement(feature.previousSibling))
+        console.log(feature.previousSibling.level, feature.level, feature.previousSibling.level >= feature.level)
+        if (feature.previousSibling.level >= feature.level) {
+            console.log('hi')
+            feature.level += 1
+            feature.style.paddingLeft = (feature.level - 1) * 3 + '%'
+            feature.parent = findParent(feature).name
+            console.log(feature.level)
+            select()
+        } else {
+            console.log('hi')
+
+        }
+        document.debug && (feature.clickable.innerText = debugStatement(feature))
+    })
+}
+
+document.getElementById('moveout').onclick = (evt) => {
+    evt.stopPropagation()
+    document.selected.forEach(feature => {
+        if (feature.level > 1) {
+            feature.level -= 1
+            feature.style.paddingLeft = (feature.level - 1) * 3 + '%'
+            feature.parent = findParent(feature) ? findParent(feature).name : 'top'
+            select()
+        }
+        document.debug && (feature.clickable.innerText = debugStatement(feature))
+    })
 }
 
 addBtn.onclick = (evt) => {
@@ -324,6 +427,7 @@ delBtn.onclick = (evt) => {
         }
         tracker.removeChild(feature)
     })
+    document.selected = []
     save()
     select(true)
     // https://web.dev/file-system-access/
@@ -353,7 +457,29 @@ dlBtn.onclick = (evt) => {
     document.removeChild(a)
 }
 
-select(true)
+document.getElementById('active-button').onclick = () => {
+    hideActive = !hideActive
+    select(true)
+}
+
+document.getElementById('archive-button').onclick = () => {
+    // toggleList('archive')
+}
+
+document.getElementById('hide-done').onclick = () => {
+    let features = [...tracker.childNodes]
+    features = features.filter(feature => feature.status == 'done')
+    features.forEach(feature => {
+        console.log(feature)
+        feature.style.display = hideDone ? 'block' : 'none'
+        findChildren(feature).forEach(child => {
+            child.style.display = hideDone ? 'block' : 'none'
+        })
+    })
+    document.getElementById('hide-done').className = hideDone ? 'button-primary' : ''
+    hideDone = !hideDone
+}
+
 
 debugLevels = () => {
     tracker.childNodes.forEach(feature => {
@@ -366,27 +492,45 @@ var importJSON = (data) => {
         print(feature, tracker, 1)
     })
 }
-
-if (localStorage.getItem('save')) {
-    data = JSON.parse(localStorage.getItem('save'))
-    importJSON(data)
-} else if (document.cookie) {
-    let cookies = document.cookie.split(';')
-    let saveData
-    for (let i = 0; i < cookies.length; i++) {
-        if (cookies[i].includes('save')) {
-            saveData = cookies[i].split('=')[1]
-            break
+var findSaveFile = () => {
+    if (localStorage.getItem('save')) {
+        data = JSON.parse(localStorage.getItem('save'))
+        importJSON(data)
+    } else if (document.cookie) {
+        let cookies = document.cookie.split(';')
+        let saveData
+        for (let i = 0; i < cookies.length; i++) {
+            if (cookies[i].includes('save')) {
+                saveData = cookies[i].split('=')[1]
+                break
+            }
         }
+        data = JSON.parse(saveData)
+        importJSON(data)
+    } else {
+        fetch('./projectmap.json')
+            .then(response => response.json(),
+                () => alert('No save file found. Import or start fresh.'))
+            .then(json => {
+                data = json
+                importJSON(data)
+            })
     }
-    data = JSON.parse(saveData)
-    importJSON(data)
-} else {
-    fetch('./projectmap.json')
-        .then(response => response.json(),
-            () => alert('No save file found. Import or start fresh.'))
-        .then(json => {
-            data = json
-            importJSON(data)
-        })
 }
+
+var clearList = () => {
+    while (tracker.firstChild) {
+        tracker.removeChild(tracker.firstChild)
+    }
+}
+
+var debug = (state) => {
+    document.debug = Boolean(state)
+    clearList()
+    findSaveFile()
+    return document.debug
+}
+
+findSaveFile()
+debug(true)
+select(true)
