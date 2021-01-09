@@ -1,15 +1,152 @@
 {
     "features": [
         {
-            "name": "fix select issue with bolding",
-            "status": "done",
+            "name": "testing",
+            "status": "todo",
             "details": "move elements",
-            "selected": false,
             "children": [
                 {
-                    "name": "template",
+                    "name": "feature 1",
                     "status": "todo",
                     "details": "",
+                    "children": [
+                        {
+                            "name": "feature 3",
+                            "status": "done",
+                            "details": "",
+                            "children": [
+                                {
+                                    "name": "feature 4",
+                                    "status": "todo",
+                                    "details": "",
+                                    "children": [
+                                        {
+                                            "name": "new feature",
+                                            "status": "todo",
+                                            "details": "",
+                                            "children": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "feature 2",
+                            "status": "todo",
+                            "details": "",
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ux",
+            "status": "todo",
+            "details": "",
+            "children": [
+                {
+                    "name": "hide active and archive list when clicked",
+                    "status": "paused",
+                    "details": "active list done\nstill have to do archive list",
+                    "children": []
+                },
+                {
+                    "name": "move up and down",
+                    "status": "paused",
+                    "details": "move all children as well\nchange parent as necessary for new bottom and new top\non move down, things that move up need to have new parent also",
+                    "children": []
+                },
+                {
+                    "name": "move left and right",
+                    "status": "todo",
+                    "details": "must change parents as required\nBROKEN: moving multiple of same level",
+                    "children": []
+                },
+                {
+                    "name": "give names to project maps",
+                    "status": "todo",
+                    "details": "show project map title\nclick project map to create textbox",
+                    "children": []
+                },
+                {
+                    "name": "drag functions",
+                    "status": "todo",
+                    "details": "",
+                    "children": []
+                },
+                {
+                    "name": "hide done",
+                    "status": "done",
+                    "details": "what to do with children",
+                    "children": []
+                },
+                {
+                    "name": "sort out double-ups on parents",
+                    "status": "todo",
+                    "details": "can there be double ups?\nor just no double ups together?\nhow to identify in parents",
+                    "children": []
+                },
+                {
+                    "name": "list management",
+                    "status": "todo",
+                    "details": "",
+                    "children": [
+                        {
+                            "name": "hide list",
+                            "status": "todo",
+                            "details": "",
+                            "children": []
+                        },
+                        {
+                            "name": "collapse list",
+                            "status": "done",
+                            "details": "collapse list and reexpand list on double click",
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "name": "show current in active / progress",
+                    "status": "done",
+                    "details": "list on the side with a collection? filter?",
+                    "children": []
+                },
+                {
+                    "name": "archive function",
+                    "status": "todo",
+                    "details": "",
+                    "children": []
+                },
+                {
+                    "name": "add template todos",
+                    "status": "todo",
+                    "details": "",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "backend",
+            "status": "todo",
+            "details": "",
+            "children": [
+                {
+                    "name": "fix findChildren",
+                    "status": "done",
+                    "details": "",
+                    "children": []
+                },
+                {
+                    "name": "save order of features",
+                    "status": "todo",
+                    "details": "",
+                    "children": []
+                },
+                {
+                    "name": "autocomplete parent if children are all complete",
+                    "status": "todo",
+                    "details": "findOtherChildren function required",
                     "children": []
                 }
             ]
