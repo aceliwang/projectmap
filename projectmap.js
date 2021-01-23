@@ -1,41 +1,47 @@
 let data
 let tracker = document.getElementById('tracker')
+let title = document.getElementById('title')
+document.selected = []
+
+// buttons
 let addBtn = document.getElementById('add')
 let saveBtn = document.getElementById('save')
 let delBtn = document.getElementById('delete')
 let importBtn = document.getElementById('import')
 let dlBtn = document.getElementById('download')
-let parentDatalist = document.getElementById('parents')
+
+// lists
 let activeList = document.getElementById('active')
 let archiveList = document.getElementById('archive')
-document.selected = []
+let sessionList = document.getElementById('session-list')
 
 // editors
 let nameEditor = document.getElementById('nameEditor')
 let detailEditor = document.getElementById('detailEditor')
 let statusEditor = document.getElementById('statusEditor')
 let parentEditor = document.getElementById('parentEditor')
+let parentDatalist = document.getElementById('parents')
 
 // other
 let exportFile
 let hideActive = hideDone = false
 
-var printStatusColor = function (issueNode, status) {
+var printStatusColor = function (node, status) {
     switch (status) {
         case 'todo':
-            issueNode.style.color = 'red'
-            break;
+            node.style.color = 'red'
+            break
         case 'done':
-            issueNode.style.color = 'green'
-            break;
+            node.style.color = 'green'
+            break
         case 'active':
-            issueNode.style.color = 'blue'
-            break;
+            node.style.color = 'blue'
+            break
         case 'paused':
-            issueNode.style.color = 'orange'
-            break;
+            node.style.color = 'orange'
+            break
         default:
-            break;
+            break
     }
 }
 
@@ -43,88 +49,103 @@ var debugStatement = (feature) => {
     return `${feature.name} | ${feature.status} | ${feature.level} | ${feature.parent}`
 }
 
-var print = function (feature, parentNode, level) {
+var print = function (feature, parent, level) {
     let name = feature.name
     let status = feature.status
     let children = feature.children
     let details = feature.details
-    let issueNode = document.createElement('div')
+    let node = document.createElement('div')
     let clickable = document.createElement('span')
-    // issueNode.style.display = 'inline-block'
-    issueNode.name = name
-    issueNode.status = status
-    issueNode.details = details
-    issueNode.children = children
-    issueNode.level = level
-    issueNode.parent = parentNode.name || 'top'
-    issueNode.style.paddingLeft = (level - 1) * 3 + '%'
-    issueNode.hideChild = false
-    issueNode.archived = false
-    clickable.innerText = !document.debug ? name : debugStatement(issueNode)
-    issueNode.appendChild(clickable)
-    issueNode.clickable = clickable
+    // node.style.display = 'inline-block'
+    node.name = name
+    node.status = status
+    node.details = details
+    node.children = children
+    node.level = level
+    node.parent = parent.name || 'top'
+    node.style.paddingLeft = (level - 1) * 3 + '%'
+    node.hideChild = false
+    node.hiddenChildren = [] // todo
+    node.archived = false
+    node.dueTime = false // todo
+    node.dueDate = false // todo
+    node.reminderTime = false // todo
+    clickable.innerText = !document.debug ? name : debugStatement(node)
+    node.appendChild(clickable)
+    node.clickable = clickable
     clickable.onclick = (evt) => {
         evt.stopPropagation()
-        // if (document.selected.includes(issueNode)) { // unclick
-        // document.selected = document.selected.filter(item => item != issueNode)
-        // console.log('clicked', document.selected)
-        // issueNode.style.fontWeight = 'normal'
-        // select(true)
-        // } else 
-        if (evt.ctrlKey && document.selected.includes(issueNode)) { // ctrl + unclick
-            document.selected = document.selected.filter(feature => feature != issueNode)
-            issueNode.style.fontWeight = 'normal'
+        if (evt.ctrlKey && document.selected.includes(node)) { // ctrl + unclick
+            document.selected = document.selected.filter(feature => feature != node)
+            node.style.fontWeight = 'normal'
         } else if (evt.ctrlKey) { // ctrl + click
-            document.selected.push(issueNode)
-            issueNode.style.fontWeight = 'bold'
+            document.selected.push(node)
+            node.style.fontWeight = 'bold'
         } else { // click
-            // console.log('click feature')
             document.selected.forEach(issue =>
                 issue.style.fontWeight = 'normal'
             )
-            document.selected = [issueNode]
+            document.selected = [node]
         }
         select()
         // console.log(document.selected.map(feature => feature.name))
     }
     clickable.ondblclick = (evt) => {
-        // console.log('old', issueNode.hideChild)
         evt.stopPropagation()
-        let childrenFound = false
-        findChildren(issueNode).forEach(child => {
-            childrenFound = true
-            child.style.display = issueNode.hideChild ? 'block' : 'none'
-        })
-        issueNode.hideChild = childrenFound ? !issueNode.hideChild : issueNode.hideChild
-        console.log('new', issueNode.hideChild)
+        if (node.hideChild) { // children are already hidden
+            node.hiddenChildren.forEach(child => {
+                child.level = node.level + child.level
+                child.style.paddingLeft = (node.level) * 3 + '%'
+                node.insertAdjacentElement('afterend', child)
+            })
+            node.hiddenChildren = []
+            node.hideChild = false
+        } else { // children are currently visible
+            let childrenFound = false
+            findChildren(node).forEach(child => {
+                childrenFound = true
+                // child.style.display = node.hideChild ? 'block' : 'none'
+                node.hiddenChildren.unshift(child)
+                tracker.removeChild(child)
+                child.level = child.level - node.level
+            })
+            node.hideChild = childrenFound ? !node.hideChild : node.hideChild
+        }
+        node.style.fontStyle = node.hideChild ? 'italic' : 'normal'
     }
-    printStatusColor(issueNode, status)
+    printStatusColor(node, status)
     if (level === 1) {
-        parentNode.append(issueNode)
+        parent.append(node)
     } else {
-        parentNode.insertAdjacentElement('afterend', issueNode)
+        parent.insertAdjacentElement('afterend', node)
     }
     children.forEach(child => {
-        print(child, issueNode, level + 1)
+        print(child, node, level + 1)
     })
-    return issueNode
+    return node
 }
 
 var add = function () {
-    let parentNode = document.selected[0] ? document.selected[0] : tracker
+    let parent = document.selected[0] ? document.selected[0] : tracker
     let level = document.selected[0] ? document.selected[0].level + 1 : 1
-    console.log(parentNode, level)
+    console.log(parent, level)
     document.selected.forEach(feature => {
         feature.style.fontWeight = 'normal'
     })
-    document.selected = [print({
-        "name": "new feature",
-        "status": "todo",
-        "details": "",
-        "children": []
-    }, parentNode, level)]
+    let node = print({
+        'name': 'new feature',
+        'status': 'todo',
+        'details': '',
+        'children': []
+    }, parent, level)
+    document.selected[0] && updateParent(node)
+    document.selected = [node]
     save()
     select()
+}
+
+var archive = function () { // todo
+    document.selected.for()
 }
 
 var select = function (empty) {
@@ -195,7 +216,7 @@ var refreshActives = () => {
     !hideActive && generateActives()
 }
 
-nameEditor.onchange = function () {
+nameEditor.onchange = () => {
     document.selected.forEach(feature => {
         feature.name = this.value
         feature.clickable.innerText = !document.debug ? this.value : debugStatement(feature)
@@ -214,12 +235,20 @@ detailEditor.onchange = function () {
     save()
 }
 
-statusEditor.onchange = function () {
-    document.selected.forEach(node => {
-        printStatusColor(node, this.value)
-        node.status = this.value
-    })
-    save()
+
+
+var updateParent = (feature) => {
+    if (feature.parent != 'top') {
+        let parentStatus
+        if (findSiblings(feature).every(sibling => sibling.status == 'done')) {
+            parentStatus = 'done'
+        } else {
+            parentStatus = 'todo'
+        }
+        let parent = findParent(feature)
+        parent.status = parentStatus
+        printStatusColor(parent, parentStatus)
+    }
 }
 
 parentEditor.onfocus = function () {
@@ -253,49 +282,64 @@ parentEditor.onchange = function () {
 }
 
 var save = function () {
-    let queue = []
-    let json = { features: [] }
-    tracker.childNodes.forEach(node => {
+    let queue
+    let json = data
+    let activeSession = {
+        features: [],
+        title: title.innerText,
+    }
+    const exportNode = (node) => {
+        return {
+            name: node.name,
+            status: node.status,
+            details: node.details,
+            dueDate: node.dueDate,
+            dueTime: node.dueTime,
+            reminderTime: node.reminderTime,
+            archived: node.archived,
+            children: []
+        }
+    }
+
+    let addToSaveQueue = (node) => {
         if (node.level < queue.length) { // if level has dropped
             let difference = queue.length - node.level
             for (let i = 0; i < difference; i++) {
-                let collapse = queue.pop()
+                let collapse = queue.pop().reverse()
                 queue.slice(-1)[0].slice(-1)[0].children.push(...collapse)
             }
-            queue.slice(-1)[0].push({
-                name: node.name,
-                status: node.status,
-                details: node.details,
-                children: []
-            })
+            queue.slice(-1)[0].push(exportNode(node))
         } else if (node.level === queue.length) { // if same level
-            queue.slice(-1)[0].push({
-                name: node.name,
-                status: node.status,
-                details: node.details,
-                children: []
-            })
+            queue.slice(-1)[0].push(exportNode(node))
         } else if (node.level > queue.length) { // if level has increased
-            queue.push([{
-                name: node.name,
-                status: node.status,
-                details: node.details,
-                children: []
-            }])
+            queue.push([exportNode(node)])
         }
+    }
+
+    // export current session
+    queue = []
+
+    tracker.childNodes.forEach(node => {
+        addToSaveQueue(node)
+        node.hiddenChildren.forEach(child => {
+            child.level = node.level + child.level
+            addToSaveQueue(child)
+        })
     })
+
     for (let i = 1; i < queue.length; i++) {
-        let collapse = queue.pop()
+        let collapse = queue.pop().reverse()
         queue.slice(-1)[0].slice(-1)[0].children.push(...collapse)
     }
     queue.forEach(feature => {
-        json.features.push(...feature)
+        activeSession.features.push(...feature)
     })
+    json.sessions.unshift(activeSession)
     json = JSON.stringify(json)
-    // console.log(json)
-    document.cookie = "save=" + json
+    document.cookie = 'save=' + json
     localStorage.setItem('save', json)
     exportFile = json
+    data = json
 }
 
 var checkConsecutive = (array) => {
@@ -325,6 +369,10 @@ var findParent = (feature) => {
     return null
 }
 
+var findSiblings = (feature) => {
+    return findChildren(findParent(feature))
+}
+
 document.getElementById('selectnone').onclick = (evt) => {
     evt.stopPropagation()
     document.selected.forEach(feature => {
@@ -333,6 +381,23 @@ document.getElementById('selectnone').onclick = (evt) => {
     document.selected = []
     select(true)
 }
+
+var changeStatus = (newStatus) => {
+    newStatus = newStatus || statusEditor.value
+    document.selected.forEach(feature => {
+        printStatusColor(feature, newStatus)
+        feature.status = newStatus
+        if (newStatus == 'done' && hideDone) {
+            feature.style.display = 'none'
+        }
+        updateParent(feature)
+        document.debug && (feature.clickable.innerText = debugStatement(feature))
+    })
+    select()
+    save()
+}
+
+statusEditor.onchange = () => changeStatus()
 
 document.getElementById('moveup').onclick = (evt) => {
     evt.stopPropagation()
@@ -357,6 +422,7 @@ document.getElementById('moveup').onclick = (evt) => {
         })
     } // must also move all children
     select()
+    save()
 }
 
 document.getElementById('movedown').onclick = (evt) => {
@@ -370,6 +436,7 @@ document.getElementById('movedown').onclick = (evt) => {
         firstElement.insertAdjacentElement('beforeBegin', lastElement.nextSibling)
     }
     select()
+    save()
 }
 
 document.getElementById('movein').onclick = (evt) => {
@@ -379,18 +446,15 @@ document.getElementById('movein').onclick = (evt) => {
         console.log(debugStatement(feature.previousSibling))
         console.log(feature.previousSibling.level, feature.level, feature.previousSibling.level >= feature.level)
         if (feature.previousSibling.level >= feature.level) {
-            console.log('hi')
             feature.level += 1
             feature.style.paddingLeft = (feature.level - 1) * 3 + '%'
             feature.parent = findParent(feature).name
             console.log(feature.level)
             select()
-        } else {
-            console.log('hi')
-
         }
         document.debug && (feature.clickable.innerText = debugStatement(feature))
     })
+    save()
 }
 
 document.getElementById('moveout').onclick = (evt) => {
@@ -404,6 +468,7 @@ document.getElementById('moveout').onclick = (evt) => {
         }
         document.debug && (feature.clickable.innerText = debugStatement(feature))
     })
+    save()
 }
 
 addBtn.onclick = (evt) => {
@@ -425,6 +490,8 @@ delBtn.onclick = (evt) => {
             adjacent.style.paddingLeft = (adjacent.level - 1) * 3 + '%'
             adjacent.insertAdjacentElement('afterend', feature)
         }
+        feature.status = 'done'
+        updateParent(feature)
         tracker.removeChild(feature)
     })
     document.selected = []
@@ -480,6 +547,23 @@ document.getElementById('hide-done').onclick = () => {
     hideDone = !hideDone
 }
 
+title.ondblclick = () => {
+    let original = title
+    let input = document.getElementById('title-input')
+    input.value = original.innerText
+    input.style.display = 'inline-block'
+    original.style.display = 'none'
+}
+
+document.getElementById('title-input').onblur = () => {
+    let original = title
+    let input = document.getElementById('title-input')
+    original.style.display = 'block'
+    original.innerText = input.value
+    input.style.display = 'none'
+    save()
+}
+
 
 debugLevels = () => {
     tracker.childNodes.forEach(feature => {
@@ -488,15 +572,28 @@ debugLevels = () => {
 }
 
 var importJSON = (data) => {
-    data.features.forEach(feature => {
+    // title.innerText = data.title
+    // data.features.forEach(feature => {
+    //     print(feature, tracker, 1)
+    // })
+    let lastActiveSession = data.sessions.shift() // last active session is stored as first session
+    title.innerText = lastActiveSession.title
+    lastActiveSession.features.forEach(feature => {
         print(feature, tracker, 1)
     })
+    let sessionTitles = data.sessions.map(session => session.title)
+    sessionTitles.forEach(session => {
+        let temp = document.createElement('option')
+        sessionList.appendChild(temp)
+    })
+    return data
 }
+
 var findSaveFile = () => {
-    if (localStorage.getItem('save')) {
+    if (localStorage.getItem('save')) { // use local storage api first
         data = JSON.parse(localStorage.getItem('save'))
-        importJSON(data)
-    } else if (document.cookie) {
+        data = importJSON(data)
+    } else if (document.cookie) { // use cookie next
         let cookies = document.cookie.split(';')
         let saveData
         for (let i = 0; i < cookies.length; i++) {
@@ -507,7 +604,7 @@ var findSaveFile = () => {
         }
         data = JSON.parse(saveData)
         importJSON(data)
-    } else {
+    } else { // use default save file next
         fetch('./projectmap.json')
             .then(response => response.json(),
                 () => alert('No save file found. Import or start fresh.'))
@@ -530,6 +627,37 @@ var debug = (state) => {
     findSaveFile()
     return document.debug
 }
+
+// session management
+
+var createSession = () => {
+    save()
+}
+
+
+// keyboard shortcuts
+
+document.addEventListener('keyup', function (evt) {
+    if (!document.selected.length || (document.activeElement.tagName == 'INPUT' || document.activeElement.tagName == 'TEXTAREA')) {
+        return
+    }
+    switch (evt.key) {
+        case 'd':
+            changeStatus('done')
+            break
+        case 't':
+            changeStatus('todo')
+            break
+        case 'p':
+            changeStatus('paused')
+            break
+        case 'a':
+            changeStatus('active')
+            break
+        default:
+            break
+    }
+})
 
 findSaveFile()
 debug(true)

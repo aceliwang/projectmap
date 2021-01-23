@@ -1,155 +1,276 @@
 {
-    "features": [
+    "sessions": [
         {
-            "name": "testing",
-            "status": "todo",
-            "details": "move elements",
-            "children": [
+            "features": [
                 {
-                    "name": "feature 1",
+                    "name": "testing",
                     "status": "todo",
-                    "details": "",
+                    "details": "move elements",
+                    "dueDate": false,
+                    "dueTime": false,
+                    "reminderTime": false,
+                    "archived": false,
                     "children": [
                         {
-                            "name": "feature 3",
-                            "status": "done",
+                            "name": "feature 1",
+                            "status": "todo",
                             "details": "",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
                             "children": [
                                 {
-                                    "name": "feature 4",
-                                    "status": "todo",
+                                    "name": "feature 3",
+                                    "status": "done",
                                     "details": "",
+                                    "dueDate": false,
+                                    "dueTime": false,
+                                    "reminderTime": false,
+                                    "archived": false,
                                     "children": [
                                         {
-                                            "name": "new feature",
+                                            "name": "feature 4",
                                             "status": "todo",
                                             "details": "",
-                                            "children": []
+                                            "dueDate": false,
+                                            "dueTime": false,
+                                            "reminderTime": false,
+                                            "archived": false,
+                                            "children": [
+                                                {
+                                                    "name": "new feature",
+                                                    "status": "todo",
+                                                    "details": "",
+                                                    "dueDate": false,
+                                                    "dueTime": false,
+                                                    "reminderTime": false,
+                                                    "archived": false,
+                                                    "children": []
+                                                }
+                                            ]
                                         }
                                     ]
+                                },
+                                {
+                                    "name": "feature 2",
+                                    "status": "todo",
+                                    "details": "",
+                                    "dueDate": false,
+                                    "dueTime": false,
+                                    "reminderTime": false,
+                                    "archived": false,
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "ux",
+                    "status": "todo",
+                    "details": "",
+                    "dueDate": false,
+                    "dueTime": false,
+                    "reminderTime": false,
+                    "archived": false,
+                    "children": [
+                        {
+                            "name": "settings panel",
+                            "status": "todo",
+                            "details": "moveupanddown is on same level or individual",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "console",
+                            "status": "todo",
+                            "details": "",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "keyboard shortcuts",
+                            "status": "active",
+                            "details": "status\n?save\n?others",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "hide active and archive list when clicked",
+                            "status": "paused",
+                            "details": "active list done\nstill have to do archive list",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "move up and down",
+                            "status": "paused",
+                            "details": "move all children as well\nchange parent as necessary for new bottom and new top\non move down, things that move up need to have new parent also\nif collapsed list: children should also move",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "move left and right",
+                            "status": "active",
+                            "details": "must change parents as required\nBROKEN: moving multiple of same level\nif with parent, move left and move children",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "give names to project maps",
+                            "status": "done",
+                            "details": "show project map title\nclick project map to create textbox",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "hide done",
+                            "status": "paused",
+                            "details": "what to do with children: solution: verify only when all children are complete can you mark as done",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "drag functions",
+                            "status": "todo",
+                            "details": "",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "sort out double-ups on parents",
+                            "status": "todo",
+                            "details": "can there be double ups?\nor just no double ups together?\nhow to identify in parents",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "list management",
+                            "status": "done",
+                            "details": "",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": [
+                                {
+                                    "name": "collapse list",
+                                    "status": "done",
+                                    "details": "collapse list and reexpand list on double click",
+                                    "dueDate": false,
+                                    "dueTime": false,
+                                    "reminderTime": false,
+                                    "archived": false,
+                                    "children": []
                                 }
                             ]
                         },
                         {
-                            "name": "feature 2",
-                            "status": "todo",
-                            "details": "",
-                            "children": []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "ux",
-            "status": "todo",
-            "details": "",
-            "children": [
-                {
-                    "name": "hide active and archive list when clicked",
-                    "status": "paused",
-                    "details": "active list done\nstill have to do archive list",
-                    "children": []
-                },
-                {
-                    "name": "move up and down",
-                    "status": "paused",
-                    "details": "move all children as well\nchange parent as necessary for new bottom and new top\non move down, things that move up need to have new parent also",
-                    "children": []
-                },
-                {
-                    "name": "move left and right",
-                    "status": "todo",
-                    "details": "must change parents as required\nBROKEN: moving multiple of same level",
-                    "children": []
-                },
-                {
-                    "name": "give names to project maps",
-                    "status": "todo",
-                    "details": "show project map title\nclick project map to create textbox",
-                    "children": []
-                },
-                {
-                    "name": "drag functions",
-                    "status": "todo",
-                    "details": "",
-                    "children": []
-                },
-                {
-                    "name": "hide done",
-                    "status": "done",
-                    "details": "what to do with children",
-                    "children": []
-                },
-                {
-                    "name": "sort out double-ups on parents",
-                    "status": "todo",
-                    "details": "can there be double ups?\nor just no double ups together?\nhow to identify in parents",
-                    "children": []
-                },
-                {
-                    "name": "list management",
-                    "status": "todo",
-                    "details": "",
-                    "children": [
-                        {
-                            "name": "hide list",
-                            "status": "todo",
-                            "details": "",
+                            "name": "show current in active / progress",
+                            "status": "done",
+                            "details": "list on the side with a collection? filter?",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
                             "children": []
                         },
                         {
-                            "name": "collapse list",
-                            "status": "done",
-                            "details": "collapse list and reexpand list on double click",
+                            "name": "archive function",
+                            "status": "todo",
+                            "details": "how to manage parents? use nested parents\nwhat happens if parents are deleted",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "add template todos",
+                            "status": "todo",
+                            "details": "",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
                             "children": []
                         }
                     ]
                 },
                 {
-                    "name": "show current in active / progress",
-                    "status": "done",
-                    "details": "list on the side with a collection? filter?",
-                    "children": []
-                },
-                {
-                    "name": "archive function",
-                    "status": "todo",
-                    "details": "",
-                    "children": []
-                },
-                {
-                    "name": "add template todos",
-                    "status": "todo",
-                    "details": "",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "name": "backend",
-            "status": "todo",
-            "details": "",
-            "children": [
-                {
-                    "name": "fix findChildren",
+                    "name": "backend",
                     "status": "done",
                     "details": "",
-                    "children": []
-                },
-                {
-                    "name": "save order of features",
-                    "status": "todo",
-                    "details": "",
-                    "children": []
-                },
-                {
-                    "name": "autocomplete parent if children are all complete",
-                    "status": "todo",
-                    "details": "findOtherChildren function required",
-                    "children": []
+                    "dueDate": false,
+                    "dueTime": false,
+                    "reminderTime": false,
+                    "archived": false,
+                    "children": [
+                        {
+                            "name": "fix findChildren",
+                            "status": "done",
+                            "details": "",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "save order of features",
+                            "status": "done",
+                            "details": "look at save queue, because it currently just reverses everything",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        },
+                        {
+                            "name": "autocomplete parent if children are all complete",
+                            "status": "done",
+                            "details": "findOtherChildren function requireddddd",
+                            "dueDate": false,
+                            "dueTime": false,
+                            "reminderTime": false,
+                            "archived": false,
+                            "children": []
+                        }
+                    ]
                 }
-            ]
+            ],
+            "title": "project map"
         }
     ]
 }

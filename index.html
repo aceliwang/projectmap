@@ -4,16 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="./skeleton.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <title>Project Map</title>
     <style>
         span:hover {
             cursor: pointer;
         }
+
         #tracker {
             user-select: none;
         }
+
         body {
             overflow-y: scroll;
+        }
+
+        #title-input {
+            font-size: 3.6rem;
+            font-family: 'Raleway';
+            font-weight: 300;
+            height: 5rem;
+            display: none;
+        }
+
+        input[type="time"] {
+            padding: 0.4rem 0.6rem;
+            background-color: #FFF;
+            border: 1px solid #D1D1D1;
+            border-radius: 4px;
+            box-shadow: none;
+            -webkit-transition: border 0.2s;
+            transition: border 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        input[type="time"]:focus {
+            border: 1px solid #33C3F0;
+            outline: 0;
         }
     </style>
 </head>
@@ -22,12 +52,17 @@
     <div class="container">
         <div class="row">
             <div class="one-half columns">
-                <h1>project map</h1>
+                <h1 id="title">project map</h1>
+                <input id="title-input" type="text" />
             </div>
             <div class="one-half columns" style="text-align:right;">
-                <button id="import">Import</button>
-                <button id="save">Save</button>
-                <button id="download">Download</button>
+                <button id="choose"><span class="material-icons">list</span></button>
+                <select id="session-list"></select>
+                <button id="import"><span class="material-icons">cloud_upload</span></button>
+                <button id="save"><span class="material-icons">save</span></button>
+                <button id="download"><span class="material-icons">cloud_download</span></button>
+                <button id="settings"><span class="material-icons">settings</span></button>
+                
             </div>
         </div>
         <div class="row" id="selectnone">
@@ -65,13 +100,30 @@
                 <input id="parentEditor" list="parents" type="text" class="u-full-width">
                 <datalist id="parents"></datalist>
             </div>
-            <div class="four columns">
+            <div class="two columns">
+                <label>Due Date</label>
+                <input type="date" class="u-full-width">
+            </div>
+            <div class="two columns">
+                <label>Reminder</label>
+                <input type="date" class="u-full-width">
+            </div>
+        </div>
+        <div class="row">
+            <div class="eight columns">
                 <label>Action</label>
                 <button id="moveup">🠕</button>
                 <button id="movedown">🠗</button>
                 <button id="moveout">🠔</button>
                 <button id="movein">➝</button>
                 <button id="archive">Archive</button>
+            </div>
+            <div class="two columns">
+                <input type="time" class="u-full-width">
+                <button class="u-full-width">All Day</button>
+            </div>
+            <div class="two columns">
+                <input type="time" class="u-full-width">
             </div>
         </div>
         <div class="row">
